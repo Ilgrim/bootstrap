@@ -1,4 +1,4 @@
-var DatepickerDemoCtrl = function ($scope) {
+angular.module('bootstrapDemoApp').controller('DatepickerDemoCtrl', function ($scope) {
   $scope.today = function() {
     $scope.dt = new Date();
   };
@@ -33,4 +33,4 @@ var DatepickerDemoCtrl = function ($scope) {
   $scope.initDate = new Date('2016-15-20');
   $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
   $scope.format = $scope.formats[0];
-};
+});

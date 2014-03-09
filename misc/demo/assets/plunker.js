@@ -13,7 +13,7 @@ angular.module('plunker', [])
 
       var indexContent = function (content, version) {
         return '<!doctype html>\n' +
-          '<html ng-app="plunker">\n' +
+          '<html ng-app="bootstrapDemoApp">\n' +
           '  <head>\n' +
           '    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/'+ngVersion+'/angular.js"></script>\n' +
           '    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-'+version+'.js"></script>\n' +
@@ -27,7 +27,7 @@ angular.module('plunker', [])
       };
 
       var scriptContent = function(content) {
-        return "angular.module('plunker', ['ui.bootstrap']);" + "\n" + content;
+        return "angular.module('bootstrapDemoApp', ['ui.bootstrap']);" + "\n" + content;
       };
 
       addField('description', 'http://angular-ui.github.io/bootstrap/');

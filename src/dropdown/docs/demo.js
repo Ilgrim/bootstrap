@@ -1,4 +1,4 @@
-function DropdownCtrl($scope) {
+angular.module('bootstrapDemoApp').controller('DropdownCtrl', function ($scope) {
   $scope.items = [
     'The first choice!',
     'And another choice for you.',
@@ -18,4 +18,4 @@ function DropdownCtrl($scope) {
     $event.stopPropagation();
     $scope.status.isopen = !$scope.status.isopen;
   };
-}
+});
