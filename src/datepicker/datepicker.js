@@ -136,10 +136,6 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.position'])
         next: 'month'
       };
 
-      function getDaysInMonth( year, month ) {
-        return new Date(year, month, 0).getDate();
-      }
-
       function getDates(startDate, n) {
         var dates = new Array(n), current = new Date(startDate), i = 0;
         current.setHours(12); // Prevent repeated dates because of timezone bug
@@ -152,21 +148,19 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.position'])
 
       ctrl._refreshView = function() {
         var year = ctrl.currentCalendarDate.getFullYear(),
-            month = ctrl.currentCalendarDate.getMonth(),
-            firstDayOfMonth = new Date(year, month, 1),
-            difference = ctrl.startingDay - firstDayOfMonth.getDay(),
-            numDisplayedFromPreviousMonth = (difference > 0) ? 7 - difference : - difference,
-            firstDate = new Date(firstDayOfMonth), numDates = 0;
+          month = ctrl.currentCalendarDate.getMonth(),
+          firstDayOfMonth = new Date(year, month, 1),
+          difference = ctrl.startingDay - firstDayOfMonth.getDay(),
+          numDisplayedFromPreviousMonth = (difference > 0) ? 7 - difference : - difference,
+          firstDate = new Date(firstDayOfMonth);
 
         if ( numDisplayedFromPreviousMonth > 0 ) {
           firstDate.setDate( - numDisplayedFromPreviousMonth + 1 );
-          numDates += numDisplayedFromPreviousMonth; // Previous
         }
-        numDates += getDaysInMonth(year, month + 1); // Current
-        numDates += (7 - numDates % 7) % 7; // Next
 
-        var days = getDates(firstDate, numDates);
-        for (var i = 0; i < numDates; i ++) {
+        // 42 is the number of days on a six-month calendar
+        var days = getDates(firstDate, 42);
+        for (var i = 0; i < 42; i ++) {
           days[i] = angular.extend(ctrl.createDateObject(days[i], ctrl.formatDay), {
             secondary: days[i].getMonth() !== month
           });
