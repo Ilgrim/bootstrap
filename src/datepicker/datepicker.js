@@ -69,8 +69,10 @@ angular.module('ui.bootstrap.datepicker', ['ui.bootstrap.position'])
     if ( this.mode ) {
       this._refreshView();
 
-      var date = ngModelCtrl.$modelValue ? new Date(ngModelCtrl.$modelValue) : null;
-      ngModelCtrl.$setValidity('date-disabled', !date || (this.mode && !this.isDisabled(date)));
+      if (ngModelCtrl.$modelValue) {
+        var date = new Date(ngModelCtrl.$modelValue);
+        ngModelCtrl.$setValidity('date-disabled', !date || (this.mode && !this.isDisabled(date)));
+      }
     }
   };
 
