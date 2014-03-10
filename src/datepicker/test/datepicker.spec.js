@@ -824,11 +824,17 @@ describe('datepicker directive', function () {
       element = dropdownEl.find('table');
     }
 
+    function openDropdown(element) {
+      inputEl.focus();
+      assignElements(element); // re-search for the dropdownEl again
+    }
+
     describe('', function () {
+      var wrapElement;
       beforeEach(inject(function(_$document_, $sniffer) {
         $document = _$document_;
         $rootScope.date = new Date('September 30, 2010 15:30:00');
-        var wrapElement = $compile('<div><input ng-model="date" datepicker-popup><div>')($rootScope);
+        wrapElement = $compile('<div><input ng-model="date" datepicker-popup><div>')($rootScope);
         $rootScope.$digest();
         assignElements(wrapElement);
 
@@ -844,15 +850,16 @@ describe('datepicker directive', function () {
       });
 
       it('does not to display datepicker initially', function() {
-        expect(dropdownEl).toBeHidden();
+        expect(dropdownEl).toBeGone();
       });
 
       it('displays datepicker on input focus', function() {
-        inputEl.focus();
-        expect(dropdownEl).not.toBeHidden();
+        openDropdown(wrapElement);
+        expect(dropdownEl).not.toBeGone();
       });
 
       it('renders the calendar correctly', function() {
+        openDropdown(wrapElement);
         expect(getLabelsRow().css('display')).not.toBe('none');
         expect(getLabels()).toEqual(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
         expect(getOptions(true)).toEqual([
@@ -865,12 +872,15 @@ describe('datepicker directive', function () {
       });
 
       it('updates the input when a day is clicked', function() {
+        openDropdown(wrapElement);
         clickOption(17);
+
         expect(inputEl.val()).toBe('2010-09-15');
         expect($rootScope.date).toEqual(new Date('September 15, 2010 15:30:00'));
       });
 
       it('should mark the input field dirty when a day is clicked', function() {
+        openDropdown(wrapElement);
         expect(inputEl).toHaveClass('ng-pristine');
         clickOption(17);
         expect(inputEl).toHaveClass('ng-dirty');
@@ -883,15 +893,19 @@ describe('datepicker directive', function () {
       });
 
       it('closes the dropdown when a day is clicked', function() {
-        inputEl.focus();
-        expect(dropdownEl.css('display')).not.toBe('none');
+        openDropdown(wrapElement);
+        expect(dropdownEl).not.toBeGone();
 
         clickOption(17);
-        expect(dropdownEl.css('display')).toBe('none');
+
+        assignElements(wrapElement); // assign dropdownEl again...
+        expect(dropdownEl).toBeGone();
       });
 
       it('updates the model & calendar when input value changes', function() {
         changeInputValueTo(inputEl, 'March 5, 1980');
+
+        openDropdown(wrapElement);
 
         expect($rootScope.date.getFullYear()).toEqual(1980);
         expect($rootScope.date.getMonth()).toEqual(2);
@@ -909,11 +923,12 @@ describe('datepicker directive', function () {
       });
 
       it('closes when click outside of calendar', function() {
-        inputEl.focus();
-        expect(dropdownEl).not.toBeHidden();
+        openDropdown(wrapElement);
+        expect(dropdownEl).not.toBeGone();
 
         $document.find('body').click();
-        expect(dropdownEl.css('display')).toBe('none');
+        assignElements(wrapElement); // assign dropdownEl again...
+        expect(dropdownEl).toBeGone();
       });
 
       it('sets `ng-invalid` for invalid input', function() {
@@ -959,32 +974,36 @@ describe('datepicker directive', function () {
     });
 
     describe('toggles programatically by `open` attribute', function () {
+      var wrapElement;
       beforeEach(inject(function() {
         $rootScope.open = true;
-        var wrapElement = $compile('<div><input ng-model="date" datepicker-popup is-open="open"><div>')($rootScope);
+        wrapElement = $compile('<div><input ng-model="date" datepicker-popup is-open="open"><div>')($rootScope);
         $rootScope.$digest();
         assignElements(wrapElement);
       }));
 
       it('to display initially', function() {
-        expect(dropdownEl.css('display')).not.toBe('none');
+        expect(dropdownEl).not.toBeGone();
       });
 
       it('to close / open from scope variable', function() {
-        expect(dropdownEl.css('display')).not.toBe('none');
+        expect(dropdownEl).not.toBeGone();
         $rootScope.open = false;
         $rootScope.$digest();
-        expect(dropdownEl.css('display')).toBe('none');
+        assignElements(wrapElement);
+        expect(dropdownEl).toBeGone();
 
         $rootScope.open = true;
         $rootScope.$digest();
-        expect(dropdownEl.css('display')).not.toBe('none');
+        assignElements(wrapElement);
+        expect(dropdownEl).not.toBeGone();
       });
     });
 
     describe('custom format', function () {
+      var wrapElement;
       beforeEach(inject(function() {
-        var wrapElement = $compile('<div><input ng-model="date" datepicker-popup="dd-MMMM-yyyy"><div>')($rootScope);
+        wrapElement = $compile('<div><input ng-model="date" datepicker-popup="dd-MMMM-yyyy"><div>')($rootScope);
         $rootScope.$digest();
         assignElements(wrapElement);
       }));
@@ -994,6 +1013,7 @@ describe('datepicker directive', function () {
       });
 
       it('updates the input when a day is clicked', function() {
+        openDropdown(wrapElement);
         clickOption(17);
         expect(inputEl.val()).toBe('15-September-2010');
         expect($rootScope.date).toEqual(new Date('September 15, 2010 15:30:00'));
@@ -1007,9 +1027,10 @@ describe('datepicker directive', function () {
     });
 
     describe('dynamic custom format', function () {
+      var wrapElement;
       beforeEach(inject(function() {
         $rootScope.format = 'dd-MMMM-yyyy';
-        var wrapElement = $compile('<div><input ng-model="date" datepicker-popup="{{format}}"><div>')($rootScope);
+        wrapElement = $compile('<div><input ng-model="date" datepicker-popup="{{format}}"><div>')($rootScope);
         $rootScope.$digest();
         assignElements(wrapElement);
       }));
@@ -1019,6 +1040,7 @@ describe('datepicker directive', function () {
       });
 
       it('updates the input when a day is clicked', function() {
+        openDropdown(wrapElement);
         clickOption(17);
         expect(inputEl.val()).toBe('15-September-2010');
         expect($rootScope.date).toEqual(new Date('September 15, 2010 15:30:00'));
@@ -1047,7 +1069,7 @@ describe('datepicker directive', function () {
 
       it('does not close the dropdown when a day is clicked', function() {
         clickOption(17);
-        expect(dropdownEl.css('display')).not.toBe('none');
+        expect(dropdownEl).not.toBeGone();
       });
     });
 
@@ -1060,8 +1082,10 @@ describe('datepicker directive', function () {
       }
 
       describe('', function () {
+        var wrapElement;
         beforeEach(inject(function() {
-          var wrapElement = $compile('<div><input ng-model="date" datepicker-popup><div>')($rootScope);
+          $rootScope.open = true;
+          wrapElement = $compile('<div><input ng-model="date" is-open="open" datepicker-popup><div>')($rootScope);
           $rootScope.$digest();
           assignElements(wrapElement);
           assignButtonBar();
@@ -1112,11 +1136,11 @@ describe('datepicker directive', function () {
         });
 
         it('should have a button to close calendar', function() {
-          inputEl.focus();
-          expect(dropdownEl.css('display')).not.toBe('none');
+          expect(dropdownEl).not.toBeGone();
 
           buttons.eq(2).click();
-          expect(dropdownEl.css('display')).toBe('none');
+          assignElements(wrapElement);
+          expect(dropdownEl).toBeGone();
         });
       });
 
@@ -1124,7 +1148,7 @@ describe('datepicker directive', function () {
         it('should change text from attributes', function() {
           $rootScope.clearText = 'Null it!';
           $rootScope.close = 'Close';
-          var wrapElement = $compile('<div><input ng-model="date" datepicker-popup current-text="Now" clear-text="{{clearText}}" close-text="{{close}}ME"><div>')($rootScope);
+          var wrapElement = $compile('<div><input ng-model="date" datepicker-popup current-text="Now" clear-text="{{clearText}}" close-text="{{close}}ME" is-open="true"><div>')($rootScope);
           $rootScope.$digest();
           assignElements(wrapElement);
           assignButtonBar();
@@ -1136,7 +1160,7 @@ describe('datepicker directive', function () {
 
         it('should remove bar', function() {
           $rootScope.showBar = false;
-          var wrapElement = $compile('<div><input ng-model="date" datepicker-popup show-button-bar="showBar"><div>')($rootScope);
+          var wrapElement = $compile('<div><input ng-model="date" datepicker-popup show-button-bar="showBar" is-open="true"><div>')($rootScope);
           $rootScope.$digest();
           assignElements(wrapElement);
           expect(dropdownEl.find('li').length).toBe(1);
@@ -1144,9 +1168,11 @@ describe('datepicker directive', function () {
       });
 
       describe('`ng-change`', function() {
+        var wrapElement;
         beforeEach(inject(function() {
           $rootScope.changeHandler = jasmine.createSpy('changeHandler');
-          var wrapElement = $compile('<div><input ng-model="date" datepicker-popup ng-change="changeHandler()"><div>')($rootScope);
+          $rootScope.open = true;
+          wrapElement = $compile('<div><input ng-model="date" datepicker-popup is-open="open" ng-change="changeHandler()"><div>')($rootScope);
           $rootScope.$digest();
           assignElements(wrapElement);
           assignButtonBar();
@@ -1191,7 +1217,8 @@ describe('datepicker directive', function () {
       beforeEach(inject(function() {
         $rootScope.changeHandler = jasmine.createSpy('changeHandler');
         $rootScope.date = new Date();
-        var wrapElement = $compile('<div><input ng-model="date" datepicker-popup ng-required="true" ng-change="changeHandler()"><div>')($rootScope);
+        $rootScope.open = true;
+        var wrapElement = $compile('<div><input ng-model="date" is-open="open" datepicker-popup ng-required="true" ng-change="changeHandler()"><div>')($rootScope);
         $rootScope.$digest();
         assignElements(wrapElement);
       }));
@@ -1221,7 +1248,7 @@ describe('datepicker directive', function () {
         var $body = $document.find('body'),
             bodyLength = $body.children().length,
             elm = angular.element(
-              '<div><input datepicker-popup ng-model="date" datepicker-append-to-body="true"></input></div>'
+              '<div><input datepicker-popup is-open="true" ng-model="date" datepicker-append-to-body="true"></div>'
             );
         $compile(elm)($rootScope);
         $rootScope.$digest();
@@ -1234,7 +1261,7 @@ describe('datepicker directive', function () {
             bodyLength = $body.children().length,
             isolatedScope = $rootScope.$new(),
             elm = angular.element(
-              '<input datepicker-popup ng-model="date" datepicker-append-to-body="true"></input>'
+              '<div><input datepicker-popup is-open="true" ng-model="date" datepicker-append-to-body="true"></div>'
             );
         $compile(elm)(isolatedScope);
         isolatedScope.$digest();
@@ -1250,7 +1277,7 @@ describe('datepicker directive', function () {
         angular.extend(originalConfig, datepickerConfig);
         datepickerConfig.showWeeks = false;
 
-        var wrapElement = $compile('<div><input ng-model="date" datepicker-popup><div>')($rootScope);
+        var wrapElement = $compile('<div><input is-open="true" ng-model="date" datepicker-popup><div>')($rootScope);
         $rootScope.$digest();
         assignElements(wrapElement);
       }));

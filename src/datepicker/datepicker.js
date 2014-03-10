@@ -323,6 +323,8 @@ function ($compile, $parse, $document, $position, dateFilter, datepickerPopupCon
 
       scope.showButtonBar = angular.isDefined(attrs.showButtonBar) ? scope.$parent.$eval(attrs.showButtonBar) : datepickerPopupConfig.showButtonBar;
 
+      scope.popup = {};
+
       scope.getText = function( key ) {
         return scope[key + 'Text'] || datepickerPopupConfig[key + 'Text'];
       };
@@ -335,7 +337,7 @@ function ($compile, $parse, $document, $position, dateFilter, datepickerPopupCon
       // popup element used to display calendar
       var popupEl = angular.element('<div datepicker-popup-wrap><div datepicker></div></div>');
       popupEl.attr({
-        'ng-model': 'date',
+        'ng-model': 'popup.date',
         'ng-change': 'dateSelection()'
       });
 
@@ -390,9 +392,9 @@ function ($compile, $parse, $document, $position, dateFilter, datepickerPopupCon
       // Inner change
       scope.dateSelection = function(dt) {
         if (angular.isDefined(dt)) {
-          scope.date = dt;
+          scope.popup.date = dt;
         }
-        ngModel.$setViewValue(scope.date);
+        ngModel.$setViewValue(scope.popup.date);
         ngModel.$render();
 
         if ( closeOnDateSelection ) {
@@ -402,7 +404,7 @@ function ($compile, $parse, $document, $position, dateFilter, datepickerPopupCon
 
       element.bind('input change keyup', function() {
         scope.$apply(function() {
-          scope.date = ngModel.$modelValue;
+          scope.popup.date = ngModel.$modelValue;
         });
       });
 
@@ -410,7 +412,7 @@ function ($compile, $parse, $document, $position, dateFilter, datepickerPopupCon
       ngModel.$render = function() {
         var date = ngModel.$viewValue ? dateFilter(ngModel.$viewValue, dateFormat) : '';
         element.val(date);
-        scope.date = parseDate( ngModel.$modelValue );
+        scope.popup.date = parseDate( ngModel.$modelValue );
       };
 
       var documentClickBind = function(event) {
@@ -462,7 +464,7 @@ function ($compile, $parse, $document, $position, dateFilter, datepickerPopupCon
       }
 
       scope.$on('$destroy', function() {
-        $popup.remove();
+        $popup.next().remove();
         element.unbind('focus', openCalendar);
         $document.unbind('click', documentClickBind);
       });
